@@ -1,0 +1,194 @@
+{/* TABLE INFORMATION */}
+
+<Paper
+  elevation={0}
+  sx={{
+    borderRadius: "7px",
+    border: `1px solid ${theme.border}`,
+    background: "#FFFFFF",
+    overflow: "hidden",
+    mb: 2,
+    boxShadow: "0 2px 9px rgba(7,27,60,0.05)",
+  }}
+>
+  <Box
+    sx={{
+      px: { xs: 1.5, sm: 2 },
+      py: 1.35,
+      display: "flex",
+      alignItems: "center",
+      gap: 1,
+      borderBottom: `1px solid ${theme.border}`,
+      background: "#FBFCFE",
+    }}
+  >
+    <TableChartIcon
+      sx={{
+        color: theme.green,
+        fontSize: 19,
+      }}
+    />
+
+    <Typography
+      sx={{
+        fontFamily: "Manrope, sans-serif",
+        fontSize: 14,
+        fontWeight: 700,
+        color: theme.navy,
+      }}
+    >
+      TABLE INFORMATION
+    </Typography>
+  </Box>
+
+  {tableRows.length > 0 ? (
+    <TableContainer
+      sx={{
+        overflowX: "auto",
+        "&::-webkit-scrollbar": {
+          height: 6,
+        },
+        "&::-webkit-scrollbar-thumb": {
+          background: "#B8C8DA",
+          borderRadius: 10,
+        },
+      }}
+    >
+      <Table
+        size="small"
+        sx={{
+          minWidth: 850,
+          tableLayout: "fixed",
+        }}
+      >
+        <TableHead>
+          <TableRow
+            sx={{
+              background: "#F5F8FC",
+            }}
+          >
+            {/* FIRST COLUMN */}
+            <TableCell
+              sx={{
+                width: "25%",
+                fontFamily: "Manrope, sans-serif",
+                fontSize: 10.5,
+                fontWeight: 800,
+                color: theme.navy,
+                borderBottom: `1px solid ${theme.border}`,
+                py: 1.2,
+              }}
+            >
+              ACCESS PATTERN
+            </TableCell>
+
+            {/* ACTUAL SELECTED SCENARIO NAMES */}
+            {selectedScenarios.map((scenario, index) => (
+              <TableCell
+                key={index}
+                align="center"
+                sx={{
+                  fontFamily: "Manrope, sans-serif",
+                  fontSize: 10,
+                  fontWeight: 800,
+                  color: theme.navy,
+                  borderBottom: `1px solid ${theme.border}`,
+                  py: 1.2,
+                  minWidth: 220,
+                  whiteSpace: "normal",
+                  wordBreak: "break-word",
+                }}
+              >
+                {typeof scenario === "string"
+                  ? scenario
+                  : scenario?.name ||
+                    scenario?.scenarioName ||
+                    scenario?.scenario ||
+                    scenario?.label}
+              </TableCell>
+            ))}
+          </TableRow>
+        </TableHead>
+
+        <TableBody>
+          {tableRows.map((row, rowIndex) => (
+            <TableRow
+              key={rowIndex}
+              sx={{
+                "&:nth-of-type(even)": {
+                  background: "#FAFCFE",
+                },
+              }}
+            >
+              {/* ACCESS PATTERN */}
+              <TableCell
+                sx={{
+                  fontFamily: "Manrope, sans-serif",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: theme.text,
+                  borderBottom: `1px solid ${theme.border}`,
+                  py: 1.15,
+                }}
+              >
+                {row[tableColumns[0]]}
+              </TableCell>
+
+              {/* VALUES FOR EACH SELECTED SCENARIO */}
+              {selectedScenarios.map((scenario, scenarioIndex) => (
+                <TableCell
+                  key={scenarioIndex}
+                  align="center"
+                  sx={{
+                    fontFamily: "Manrope, sans-serif",
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: theme.text,
+                    borderBottom: `1px solid ${theme.border}`,
+                    py: 1.15,
+                  }}
+                >
+                  {row[tableColumns[scenarioIndex + 1]] ??
+                    row.values?.[scenarioIndex] ??
+                    "-"}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  ) : (
+    <Box
+      sx={{
+        minHeight: 150,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        textAlign: "center",
+        px: 2,
+      }}
+    >
+      <Box>
+        <TableChartIcon
+          sx={{
+            fontSize: 32,
+            color: "#B8C8DA",
+            mb: 0.8,
+          }}
+        />
+
+        <Typography
+          sx={{
+            fontFamily: "Manrope, sans-serif",
+            fontSize: 12,
+            fontWeight: 600,
+            color: theme.muted,
+          }}
+        >
+          No data to display
+        </Typography>
+      </Box>
+    </Box>
+  )}
+</Paper>
