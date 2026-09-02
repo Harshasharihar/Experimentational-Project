@@ -1,0 +1,419 @@
+useEffect(() => {
+  if (!benchmark) return;
+
+  const loadCapacity = async () => {
+    try {
+      const response = await fetch(
+        `${GLOBAL_BACKEND_URL}/api/benchmarks/${encodeURIComponent(
+          benchmark
+        )}/filters/capacity`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            // add your Swagger payload here
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      setCapacityOptions(
+        Array.isArray(data)
+          ? data
+          : data?.capacity ||
+              data?.capacities ||
+              data?.data ||
+              []
+      );
+    } catch (error) {
+      console.error("Error loading capacity:", error);
+      setCapacityOptions([]);
+    }
+  };
+
+  loadCapacity();
+}, [benchmark]);
+
+
+
+useEffect(() => {
+  if (!benchmark) return;
+
+  const loadCellType = async () => {
+    try {
+      const response = await fetch(
+        `${GLOBAL_BACKEND_URL}/api/benchmarks/${encodeURIComponent(
+          benchmark
+        )}/filters/cell-type`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            // add your Swagger payload here
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      setNandOptions(
+        Array.isArray(data)
+          ? data
+          : data?.cell_type ||
+              data?.cell_types ||
+              data?.cellTypes ||
+              data?.data ||
+              []
+      );
+    } catch (error) {
+      console.error("Error loading cell type:", error);
+      setNandOptions([]);
+    }
+  };
+
+  loadCellType();
+}, [benchmark]);
+
+
+
+useEffect(() => {
+  if (!benchmark) return;
+
+  const loadSocVendors = async () => {
+    try {
+      const response = await fetch(
+        `${GLOBAL_BACKEND_URL}/api/benchmarks/${encodeURIComponent(
+          benchmark
+        )}/filters/soc-vendors`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            // add your Swagger payload here
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      setSocVendorOptions(
+        Array.isArray(data)
+          ? data
+          : data?.soc_vendors ||
+              data?.socVendors ||
+              data?.vendors ||
+              data?.data ||
+              []
+      );
+    } catch (error) {
+      console.error("Error loading SoC vendors:", error);
+      setSocVendorOptions([]);
+    }
+  };
+
+  loadSocVendors();
+}, [benchmark]);
+
+
+useEffect(() => {
+  if (!benchmark || !selectedSocVendor) {
+    setSocModelOptions([]);
+    return;
+  }
+
+  const loadSocModels = async () => {
+    try {
+      const response = await fetch(
+        `${GLOBAL_BACKEND_URL}/api/benchmarks/${encodeURIComponent(
+          benchmark
+        )}/filters/soc-model`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            // add your Swagger payload here
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      setSocModelOptions(
+        Array.isArray(data)
+          ? data
+          : data?.soc_models ||
+              data?.socModels ||
+              data?.models ||
+              data?.data ||
+              []
+      );
+    } catch (error) {
+      console.error("Error loading SoC models:", error);
+      setSocModelOptions([]);
+    }
+  };
+
+  loadSocModels();
+}, [benchmark, selectedSocVendor]);
+
+
+
+useEffect(() => {
+  if (!benchmark) return;
+
+  const loadHciVersions = async () => {
+    try {
+      const response = await fetch(
+        `${GLOBAL_BACKEND_URL}/api/benchmarks/${encodeURIComponent(
+          benchmark
+        )}/filters/hci-versions`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            // add your Swagger payload here
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      setHciVersionOptions(
+        Array.isArray(data)
+          ? data
+          : data?.hci_versions ||
+              data?.hciVersions ||
+              data?.versions ||
+              data?.data ||
+              []
+      );
+    } catch (error) {
+      console.error("Error loading HCI versions:", error);
+      setHciVersionOptions([]);
+    }
+  };
+
+  loadHciVersions();
+}, [benchmark]);
+
+useEffect(() => {
+  if (!benchmark) return;
+
+  const loadWriteBooster = async () => {
+    try {
+      const response = await fetch(
+        `${GLOBAL_BACKEND_URL}/api/benchmarks/${encodeURIComponent(
+          benchmark
+        )}/filters/wb-size`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            // add your Swagger payload here
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      setWriteBoosterOptions(
+        Array.isArray(data)
+          ? data
+          : data?.write_booster ||
+              data?.writeBooster ||
+              data?.wb_size ||
+              data?.data ||
+              []
+      );
+    } catch (error) {
+      console.error("Error loading WriteBooster:", error);
+      setWriteBoosterOptions([]);
+    }
+  };
+
+  loadWriteBooster();
+}, [benchmark]);
+
+
+
+useEffect(() => {
+  if (!benchmark) return;
+
+  const loadFileSystem = async () => {
+    try {
+      const response = await fetch(
+        `${GLOBAL_BACKEND_URL}/api/benchmarks/${encodeURIComponent(
+          benchmark
+        )}/filters/fs`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            // add your Swagger payload here
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      setFileSystemOptions(
+        Array.isArray(data)
+          ? data
+          : data?.file_systems ||
+              data?.fileSystems ||
+              data?.fs ||
+              data?.data ||
+              []
+      );
+    } catch (error) {
+      console.error("Error loading file systems:", error);
+      setFileSystemOptions([]);
+    }
+  };
+
+  loadFileSystem();
+}, [benchmark]);
+
+
+
+useEffect(() => {
+  if (!benchmark) return;
+
+  const loadEncryption = async () => {
+    try {
+      const response = await fetch(
+        `${GLOBAL_BACKEND_URL}/api/benchmarks/${encodeURIComponent(
+          benchmark
+        )}/filters/encryption`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            // add your Swagger payload here
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      setEncryptionOptions(
+        Array.isArray(data)
+          ? data
+          : data?.encryption ||
+              data?.encryptions ||
+              data?.data ||
+              []
+      );
+    } catch (error) {
+      console.error("Error loading encryption:", error);
+      setEncryptionOptions([]);
+    }
+  };
+
+  loadEncryption();
+}, [benchmark]);
+
+
+useEffect(() => {
+  if (!benchmark) return;
+
+  const loadScenarios = async () => {
+    try {
+      const response = await fetch(
+        `${GLOBAL_BACKEND_URL}/api/benchmarks/${encodeURIComponent(
+          benchmark
+        )}/filters/scenario`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            // add your Swagger payload here
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      setScenarioOptions(
+        Array.isArray(data)
+          ? data
+          : data?.scenarios ||
+              data?.available_scenarios ||
+              data?.data ||
+              []
+      );
+    } catch (error) {
+      console.error("Error loading scenarios:", error);
+      setScenarioOptions([]);
+    }
+  };
+
+  loadScenarios();
+}, [benchmark]);
+
+
+
+useEffect(() => {
+  if (!benchmark || selectedScenarios.length < 2) {
+    setTableData(null);
+    setGraphData([]);
+    return;
+  }
+
+  const loadScenarioResults = async () => {
+    try {
+      setLoadingResults(true);
+
+      const response = await fetch(
+        `${GLOBAL_BACKEND_URL}/api/benchmarks/${encodeURIComponent(
+          benchmark
+        )}/sc-results`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            // add your Swagger payload here
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      setTableData(data?.table || null);
+      setGraphData(
+        Array.isArray(data?.graph)
+          ? data.graph
+          : data?.graphs || []
+      );
+    } catch (error) {
+      console.error("Error loading scenario results:", error);
+      setTableData(null);
+      setGraphData([]);
+    } finally {
+      setLoadingResults(false);
+    }
+  };
+
+  loadScenarioResults();
+}, [benchmark, selectedScenarios]);
