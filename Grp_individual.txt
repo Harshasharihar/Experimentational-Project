@@ -1,0 +1,273 @@
+{graphData.length > 0 ? (
+  <Box sx={{ p: { xs: 1.5, sm: 2.5 } }}>
+
+    {/* LEGEND */}
+    <Box
+      sx={{
+        display: "flex",
+        flexWrap: "wrap",
+        gap: { xs: 1.5, sm: 2.5 },
+        mb: 2.5,
+        px: 1,
+      }}
+    >
+      {graphData.map((series, index) => (
+        <Box
+          key={index}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 0.8,
+          }}
+        >
+          <Box
+            sx={{
+              width: 12,
+              height: 12,
+              borderRadius: "3px",
+              background:
+                index === 0
+                  ? "#087FF5"
+                  : index === 1
+                  ? "#17B897"
+                  : index === 2
+                  ? "#F59E0B"
+                  : "#8B5CF6",
+            }}
+          />
+
+          <Typography
+            sx={{
+              fontFamily: "Manrope, sans-serif",
+              fontSize: 10.5,
+              fontWeight: 700,
+              color: theme.text,
+            }}
+          >
+            {labelOf(series?.name) || `Scenario ${index + 1}`}
+          </Typography>
+        </Box>
+      ))}
+    </Box>
+
+    {/* GROUPED BAR CHART */}
+    <Box
+      sx={{
+        minHeight: 330,
+        borderLeft: `1px solid ${theme.border}`,
+        borderBottom: `1px solid ${theme.border}`,
+        background:
+          "linear-gradient(to top, #F8FBFF 0%, #FFFFFF 100%)",
+        position: "relative",
+        overflowX: "auto",
+        px: { xs: 1, sm: 2 },
+        pt: 3,
+        pb: 5,
+
+        "&:before": {
+          content: '""',
+          position: "absolute",
+          left: 0,
+          right: 0,
+          top: "25%",
+          borderTop: "1px dashed #E8EEF6",
+        },
+
+        "&:after": {
+          content: '""',
+          position: "absolute",
+          left: 0,
+          right: 0,
+          top: "50%",
+          borderTop: "1px dashed #E8EEF6",
+        },
+      }}
+    >
+      <Box
+        sx={{
+          minWidth: Math.max(
+            700,
+            (tableRows.length || 1) * 125
+          ),
+          height: 270,
+          display: "flex",
+          alignItems: "flex-end",
+          gap: { xs: 2, sm: 3 },
+        }}
+      >
+        {tableRows.map((row, metricIndex) => {
+          const metricName =
+            row?.[tableColumns[0]] ||
+            `Metric ${metricIndex + 1}`;
+
+          return (
+            <Box
+              key={metricIndex}
+              sx={{
+                flex: 1,
+                minWidth: 95,
+                height: 250,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "flex-end",
+                alignItems: "center",
+              }}
+            >
+              {/* BAR GROUP */}
+              <Box
+                sx={{
+                  width: "100%",
+                  height: 205,
+                  display: "flex",
+                  alignItems: "flex-end",
+                  justifyContent: "center",
+                  gap: { xs: 0.5, sm: 0.8 },
+                }}
+              >
+                {graphData.map((series, scenarioIndex) => {
+                  const value =
+                    Number(series?.values?.[metricIndex]) || 0;
+
+                  const height =
+                    (value / maxGraphValue) * 100;
+
+                  const barColors = [
+                    "#087FF5",
+                    "#17B897",
+                    "#F59E0B",
+                    "#8B5CF6",
+                  ];
+
+                  return (
+                    <Box
+                      key={scenarioIndex}
+                      sx={{
+                        width: {
+                          xs: 14,
+                          sm: graphData.length > 3 ? 16 : 22,
+                        },
+                        maxWidth: 25,
+                        minWidth: 8,
+                        height: `${Math.max(height, 2)}%`,
+                        minHeight: 4,
+                        borderRadius: "3px 3px 0 0",
+                        position: "relative",
+                        transformOrigin: "bottom",
+                        animation:
+                          "barGrow 0.75s cubic-bezier(.2,.8,.2,1) both",
+                        animationDelay:
+                          `${metricIndex * 80 + scenarioIndex * 70}ms`,
+                        background:
+                          barColors[
+                            scenarioIndex %
+                              barColors.length
+                          ],
+                        boxShadow:
+                          "2px 3px 7px rgba(7,27,60,0.14)",
+
+                        /* Hover tooltip */
+                        "&:hover": {
+                          opacity: 0.82,
+                          cursor: "pointer",
+                        },
+
+                        "&:hover .bar-tooltip": {
+                          opacity: 1,
+                          transform:
+                            "translate(-50%, -4px)",
+                          visibility: "visible",
+                        },
+                      }}
+                    >
+                      {/* TOOLTIP */}
+                      <Box
+                        className="bar-tooltip"
+                        sx={{
+                          position: "absolute",
+                          left: "50%",
+                          bottom: "100%",
+                          transform:
+                            "translate(-50%, 4px)",
+                          mb: 0.8,
+                          px: 1,
+                          py: 0.7,
+                          minWidth: 105,
+                          background: "#071B3C",
+                          color: "#FFFFFF",
+                          borderRadius: "5px",
+                          boxShadow:
+                            "0 5px 15px rgba(7,27,60,0.25)",
+                          opacity: 0,
+                          visibility: "hidden",
+                          transition:
+                            "all 0.18s ease",
+                          zIndex: 20,
+                          pointerEvents: "none",
+                          textAlign: "center",
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            fontFamily:
+                              "Manrope, sans-serif",
+                            fontSize: 8.5,
+                            fontWeight: 700,
+                            lineHeight: 1.3,
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {labelOf(series?.name) ||
+                            `Scenario ${scenarioIndex + 1}`}
+                        </Typography>
+
+                        <Typography
+                          sx={{
+                            fontFamily:
+                              "Manrope, sans-serif",
+                            fontSize: 11,
+                            fontWeight: 800,
+                            lineHeight: 1.3,
+                            mt: 0.25,
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {value.toLocaleString(
+                            undefined,
+                            {
+                              maximumFractionDigits: 1,
+                            }
+                          )}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  );
+                })}
+              </Box>
+
+              {/* X-AXIS LABEL */}
+              <Typography
+                sx={{
+                  mt: 1,
+                  fontFamily:
+                    "Manrope, sans-serif",
+                  fontSize: {
+                    xs: 8,
+                    sm: 9,
+                  },
+                  fontWeight: 700,
+                  color: theme.muted,
+                  textAlign: "center",
+                  whiteSpace: "normal",
+                  lineHeight: 1.25,
+                  maxWidth: 110,
+                }}
+              >
+                {metricName}
+              </Typography>
+            </Box>
+          );
+        })}
+      </Box>
+    </Box>
+  </Box>
+) : (
