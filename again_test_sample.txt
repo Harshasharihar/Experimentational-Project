@@ -1,0 +1,962 @@
+<Paper
+  elevation={0}
+  sx={{
+    borderRadius: "7px",
+    border: `1px solid ${theme.border}`,
+    background: "#FFFFFF",
+    overflow: "hidden",
+    mb: 2,
+    boxShadow: "0 2px 9px rgba(7,27,60,0.05)",
+  }}
+>
+  {/* =========================================================
+      GRAPH INFORMATION HEADER
+  ========================================================= */}
+  <Box
+    sx={{
+      px: { xs: 1.5, sm: 2 },
+      py: 1.35,
+      display: "flex",
+      alignItems: "center",
+      gap: 1,
+      borderBottom: `1px solid ${theme.border}`,
+      background: "#FBFCFE",
+    }}
+  >
+    <ShowChartIcon
+      sx={{
+        color: theme.blue,
+        fontSize: 19,
+      }}
+    />
+
+    <Typography
+      sx={{
+        fontFamily: "Manrope, sans-serif",
+        fontSize: 14,
+        fontWeight: 700,
+        color: theme.navy,
+      }}
+    >
+      GRAPH INFORMATION
+    </Typography>
+  </Box>
+
+  {graphData && graphData.length > 0 ? (
+    (() => {
+      /*
+       * ========================================================
+       * ACCESS PATTERNS
+       *
+       * tableRows represents the Table Information rows.
+       *
+       * Example:
+       *
+       * Sequential Read
+       * Sequential Write
+       * Random Read
+       * Random Write
+       * Mixed Multi Random Access
+       * Mixed Random Access
+       * AI Read
+       * Multi AI Read
+       *
+       * These become the X-axis categories.
+       * ========================================================
+       */
+
+      const accessPatterns = (tableRows || [])
+        .map((row) => {
+          if (!row) return "";
+
+          /*
+           * First column of the table contains
+           * the access-pattern name.
+           */
+          return (
+            row[tableColumns?.[0]] ||
+            row["Access Pattern"] ||
+            row["SCENARIO"] ||
+            ""
+          );
+        })
+        .filter(Boolean);
+
+      /*
+       * ========================================================
+       * GET ALL GRAPH VALUES
+       *
+       * Every graphData item represents ONE SELECTED SCENARIO.
+       *
+       * series.values:
+       *
+       * [
+       *   Sequential Read value,
+       *   Sequential Write value,
+       *   Random Read value,
+       *   Random Write value,
+       *   ...
+       * ]
+       * ========================================================
+       */
+
+      const allValues = graphData.flatMap((series) =>
+        (series?.values || []).map((value) => Number(value) || 0)
+      );
+
+      const calculatedMaxValue = Math.max(
+        ...allValues,
+        1
+      );
+
+      /*
+       * Slightly increase the top of the Y-axis so that
+       * the data labels don't touch the top border.
+       */
+      const graphMaxValue =
+        calculatedMaxValue * 1.15;
+
+      /*
+       * Nice Y-axis tick calculation.
+       */
+      const tickCount = 6;
+
+      const tickStep =
+        graphMaxValue / (tickCount - 1);
+
+      const yTicks = Array.from(
+        { length: tickCount },
+        (_, index) =>
+          tickStep * (tickCount - 1 - index)
+      );
+
+      /*
+       * Colors for selected scenarios.
+       *
+       * The same color is used in:
+       *  - legend
+       *  - bars
+       *  - 3D side
+       *  - 3D top
+       */
+      const scenarioColors = [
+        "#1976D2",
+        "#2E8B57",
+        "#F28C28",
+        "#7E57C2",
+        "#008C95",
+        "#D32F2F",
+        "#6D4C41",
+        "#546E7A",
+        "#C2185B",
+        "#455A64",
+      ];
+
+      /*
+       * ========================================================
+       * FORMAT VALUE
+       * ========================================================
+       */
+      const formatValue = (value) => {
+        if (value >= 1000) {
+          return value.toLocaleString(undefined, {
+            maximumFractionDigits: 1,
+          });
+        }
+
+        return value.toLocaleString(undefined, {
+          maximumFractionDigits: 1,
+        });
+      };
+
+      /*
+       * ========================================================
+       * FORMAT ACCESS PATTERN LABEL
+       *
+       * Keeps labels readable on X-axis.
+       * ========================================================
+       */
+      const formatAccessPattern = (value) => {
+        if (!value) return "";
+
+        const label = String(value);
+
+        const replacements = {
+          "Sequential Read": "SEQ READ",
+          "Sequential Write": "SEQ WRITE",
+          "Random Read": "RAND READ",
+          "Random Write": "RAND WRITE",
+          "Mixed Multi Random Access": "MIXED MULTI\nRANDOM ACCESS",
+          "Mixed Random Access": "MIXED\nRANDOM ACCESS",
+          "AI Read": "AI READ",
+          "Multi AI Read": "MULTI AI READ",
+        };
+
+        return (
+          replacements[label] ||
+          label
+        );
+      };
+
+      return (
+        <Box
+          sx={{
+            px: { xs: 1, sm: 2 },
+            pt: 1.5,
+            pb: 2.5,
+            overflowX: "auto",
+            overflowY: "hidden",
+          }}
+        >
+          {/* ===================================================
+              SCENARIO LEGEND
+          =================================================== */}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: { xs: 1.2, sm: 2.5 },
+              px: 2,
+              mb: 2.5,
+            }}
+          >
+            {graphData.map(
+              (series, seriesIndex) => {
+                const color =
+                  scenarioColors[
+                    seriesIndex %
+                      scenarioColors.length
+                  ];
+
+                return (
+                  <Box
+                    key={seriesIndex}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.7,
+                      minWidth: 0,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: 11,
+                        height: 11,
+                        borderRadius: "2px",
+                        flexShrink: 0,
+                        background: color,
+                        boxShadow: `0 1px 3px ${color}55`,
+                      }}
+                    />
+
+                    <Typography
+                      sx={{
+                        fontFamily:
+                          "Manrope, sans-serif",
+                        fontSize: 9.5,
+                        fontWeight: 600,
+                        color: theme.navy,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {labelOf(series?.name) ||
+                        `Scenario ${
+                          seriesIndex + 1
+                        }`}
+                    </Typography>
+                  </Box>
+                );
+              }
+            )}
+          </Box>
+
+          {/* ===================================================
+              MAIN GRAPH
+          =================================================== */}
+          <Box
+            sx={{
+              minWidth:
+                accessPatterns.length > 6
+                  ? 1150
+                  : 900,
+
+              height: 420,
+
+              display: "flex",
+
+              position: "relative",
+
+              pl: 0.5,
+            }}
+          >
+            {/* =================================================
+                Y AXIS
+            ================================================= */}
+            <Box
+              sx={{
+                width: 75,
+                flexShrink: 0,
+                height: 335,
+                position: "relative",
+              }}
+            >
+              {yTicks.map(
+                (tick, index) => {
+                  const position =
+                    (index /
+                      (yTicks.length - 1)) *
+                    100;
+
+                  return (
+                    <Typography
+                      key={index}
+                      sx={{
+                        position: "absolute",
+                        right: 8,
+                        top: `${position}%`,
+                        transform:
+                          "translateY(-50%)",
+                        fontFamily:
+                          "Manrope, sans-serif",
+                        fontSize: 9,
+                        fontWeight: 600,
+                        color: theme.muted,
+                        whiteSpace:
+                          "nowrap",
+                      }}
+                    >
+                      {formatValue(tick)}
+                    </Typography>
+                  );
+                }
+              )}
+
+              {/* Y AXIS TITLE */}
+              <Typography
+                sx={{
+                  position: "absolute",
+                  left: -32,
+                  top: "50%",
+                  transform:
+                    "translateY(-50%) rotate(-90deg)",
+                  transformOrigin:
+                    "center",
+                  fontFamily:
+                    "Manrope, sans-serif",
+                  fontSize: 9,
+                  fontWeight: 700,
+                  color: theme.text,
+                  whiteSpace: "nowrap",
+                  letterSpacing: 0.3,
+                }}
+              >
+                PERFORMANCE VALUE (MB/s)
+              </Typography>
+            </Box>
+
+            {/* =================================================
+                PLOT AREA
+            ================================================= */}
+            <Box
+              sx={{
+                flex: 1,
+                height: 335,
+                position: "relative",
+
+                borderLeft:
+                  `1px solid ${theme.border}`,
+
+                borderBottom:
+                  `1px solid ${theme.border}`,
+
+                background:
+                  "linear-gradient(to top, #F7FAFE 0%, #FFFFFF 100%)",
+
+                /*
+                 * Give the chart some depth.
+                 */
+                perspective: "1000px",
+              }}
+            >
+              {/* ===============================================
+                  HORIZONTAL GRID LINES
+              =============================================== */}
+              {yTicks.map(
+                (tick, index) => {
+                  const position =
+                    (index /
+                      (yTicks.length - 1)) *
+                    100;
+
+                  return (
+                    <Box
+                      key={index}
+                      sx={{
+                        position:
+                          "absolute",
+                        left: 0,
+                        right: 0,
+                        top: `${position}%`,
+
+                        borderTop:
+                          index ===
+                          yTicks.length - 1
+                            ? `1px solid ${theme.border}`
+                            : "1px dashed #DCE5F0",
+
+                        pointerEvents:
+                          "none",
+                      }}
+                    />
+                  );
+                }
+              )}
+
+              {/* ===============================================
+                  CATEGORY GROUPS
+              =============================================== */}
+              <Box
+                sx={{
+                  position: "absolute",
+                  inset: 0,
+
+                  display: "flex",
+
+                  justifyContent:
+                    "space-around",
+
+                  alignItems:
+                    "stretch",
+
+                  px: {
+                    xs: 1,
+                    sm: 3,
+                  },
+                }}
+              >
+                {accessPatterns.map(
+                  (
+                    accessPattern,
+                    metricIndex
+                  ) => {
+                    /*
+                     * =========================================
+                     * ONE GROUP = ONE ACCESS PATTERN
+                     *
+                     * Example:
+                     *
+                     * Sequential Read
+                     *   Scenario 1
+                     *   Scenario 2
+                     *   Scenario 3
+                     *   ...
+                     * =========================================
+                     */
+
+                    return (
+                      <Box
+                        key={`${accessPattern}-${metricIndex}`}
+                        sx={{
+                          flex: 1,
+
+                          minWidth:
+                            graphData.length >
+                            6
+                              ? 130
+                              : 145,
+
+                          maxWidth: 210,
+
+                          height: "100%",
+
+                          display: "flex",
+
+                          flexDirection:
+                            "column",
+
+                          justifyContent:
+                            "flex-end",
+
+                          alignItems:
+                            "center",
+
+                          position:
+                            "relative",
+
+                          zIndex: 2,
+                        }}
+                      >
+                        {/* =====================================
+                            BAR AREA
+                        ===================================== */}
+                        <Box
+                          sx={{
+                            width: "100%",
+
+                            height: 275,
+
+                            display: "flex",
+
+                            alignItems:
+                              "flex-end",
+
+                            justifyContent:
+                              "center",
+
+                            gap:
+                              graphData.length >
+                              6
+                                ? 0.35
+                                : 0.8,
+
+                            position:
+                              "relative",
+                          }}
+                        >
+                          {graphData.map(
+                            (
+                              series,
+                              seriesIndex
+                            ) => {
+                              /*
+                               * =================================
+                               * GET VALUE
+                               *
+                               * IMPORTANT:
+                               *
+                               * metricIndex corresponds to
+                               * the access-pattern row.
+                               *
+                               * seriesIndex corresponds to
+                               * selected scenario.
+                               * =================================
+                               */
+
+                              const numericValue =
+                                Number(
+                                  series
+                                    ?.values?.[
+                                    metricIndex
+                                  ]
+                                ) || 0;
+
+                              const height =
+                                (numericValue /
+                                  graphMaxValue) *
+                                100;
+
+                              const color =
+                                scenarioColors[
+                                  seriesIndex %
+                                    scenarioColors.length
+                                ];
+
+                              return (
+                                <Box
+                                  key={
+                                    seriesIndex
+                                  }
+                                  sx={{
+                                    width:
+                                      graphData.length >
+                                      7
+                                        ? 16
+                                        : graphData.length >
+                                          5
+                                        ? 20
+                                        : 27,
+
+                                    minWidth:
+                                      graphData.length >
+                                      7
+                                        ? 16
+                                        : graphData.length >
+                                          5
+                                        ? 20
+                                        : 27,
+
+                                    height:
+                                      "100%",
+
+                                    display:
+                                      "flex",
+
+                                    flexDirection:
+                                      "column",
+
+                                    justifyContent:
+                                      "flex-end",
+
+                                    alignItems:
+                                      "center",
+
+                                    position:
+                                      "relative",
+
+                                    zIndex: 3,
+                                  }}
+                                >
+                                  {/* =================================
+                                      DATA LABEL
+                                  ================================= */}
+                                  <Typography
+                                    sx={{
+                                      position:
+                                        "absolute",
+
+                                      bottom:
+                                        `calc(${Math.max(
+                                          height,
+                                          1
+                                        )}% + 7px)`,
+
+                                      fontFamily:
+                                        "Manrope, sans-serif",
+
+                                      fontSize:
+                                        graphData.length >
+                                        7
+                                          ? 7
+                                          : 8.5,
+
+                                      fontWeight: 700,
+
+                                      color:
+                                        theme.text,
+
+                                      whiteSpace:
+                                        "nowrap",
+
+                                      transform:
+                                        graphData.length >
+                                        7
+                                          ? "rotate(-45deg)"
+                                          : "none",
+
+                                      transformOrigin:
+                                        "bottom left",
+
+                                      zIndex: 10,
+                                    }}
+                                  >
+                                    {formatValue(
+                                      numericValue
+                                    )}
+                                  </Typography>
+
+                                  {/* =================================
+                                      3D BAR
+                                  ================================= */}
+                                  <Box
+                                    sx={{
+                                      width:
+                                        "100%",
+
+                                      height:
+                                        `${Math.max(
+                                          height,
+                                          numericValue >
+                                            0
+                                            ? 1.5
+                                            : 0
+                                        )}%`,
+
+                                      minHeight:
+                                        numericValue >
+                                        0
+                                          ? 4
+                                          : 0,
+
+                                      position:
+                                        "relative",
+
+                                      transformOrigin:
+                                        "bottom",
+
+                                      animation:
+                                        "barGrow 0.75s cubic-bezier(.2,.8,.2,1) both",
+
+                                      animationDelay:
+                                        `${
+                                          seriesIndex *
+                                            70 +
+                                          metricIndex *
+                                            40
+                                        }ms`,
+
+                                      borderRadius:
+                                        "3px 3px 0 0",
+
+                                      /*
+                                       * FRONT FACE
+                                       */
+                                      background:
+                                        `linear-gradient(
+                                          90deg,
+                                          ${color} 0%,
+                                          ${color}E8 55%,
+                                          ${color}B8 100%
+                                        )`,
+
+                                      boxShadow:
+                                        `3px 3px 0 ${color}55,
+                                         0 5px 10px ${color}30`,
+
+                                      /*
+                                       * RIGHT 3D FACE
+                                       */
+                                      "&:after": {
+                                        content:
+                                          '""',
+
+                                        position:
+                                          "absolute",
+
+                                        top: 0,
+
+                                        right: -5,
+
+                                        width: 5,
+
+                                        height:
+                                          "100%",
+
+                                        transform:
+                                          "skewY(-35deg)",
+
+                                        transformOrigin:
+                                          "left top",
+
+                                        background:
+                                          color,
+
+                                        filter:
+                                          "brightness(0.72)",
+
+                                        borderRadius:
+                                          "0 2px 0 0",
+                                      },
+
+                                      /*
+                                       * TOP 3D FACE
+                                       */
+                                      "&:before": {
+                                        content:
+                                          '""',
+
+                                        position:
+                                          "absolute",
+
+                                        top: -5,
+
+                                        left: 0,
+
+                                        width:
+                                          "100%",
+
+                                        height: 5,
+
+                                        transform:
+                                          "skewX(-45deg)",
+
+                                        transformOrigin:
+                                          "left bottom",
+
+                                        background:
+                                          color,
+
+                                        filter:
+                                          "brightness(1.2)",
+
+                                        borderRadius:
+                                          "2px 2px 0 0",
+                                      },
+
+                                      /*
+                                       * HOVER
+                                       */
+                                      "&:hover": {
+                                        filter:
+                                          "brightness(1.08)",
+
+                                        boxShadow:
+                                          `4px 4px 0 ${color}66,
+                                           0 8px 15px ${color}45`,
+                                      },
+                                    }}
+                                  />
+                                </Box>
+                              );
+                            }
+                          )}
+                        </Box>
+
+                        {/* =========================================
+                            X AXIS TICK
+                        ========================================= */}
+                        <Box
+                          sx={{
+                            width: 1,
+                            height: 6,
+                            background:
+                              theme.text,
+                            flexShrink: 0,
+                          }}
+                        />
+
+                        {/* =========================================
+                            X AXIS CATEGORY LABEL
+                        ========================================= */}
+                        <Typography
+                          sx={{
+                            mt: 1,
+
+                            width: "100%",
+
+                            minHeight: 34,
+
+                            px: 0.5,
+
+                            textAlign:
+                              "center",
+
+                            fontFamily:
+                              "Manrope, sans-serif",
+
+                            fontSize:
+                              graphData.length >
+                              6
+                                ? 8
+                                : 9,
+
+                            fontWeight: 700,
+
+                            color:
+                              theme.text,
+
+                            lineHeight:
+                              1.25,
+
+                            whiteSpace:
+                              "pre-line",
+
+                            overflow:
+                              "hidden",
+
+                            display:
+                              "-webkit-box",
+
+                            WebkitLineClamp:
+                              2,
+
+                            WebkitBoxOrient:
+                              "vertical",
+                          }}
+                        >
+                          {formatAccessPattern(
+                            accessPattern
+                          )}
+                        </Typography>
+                      </Box>
+                    );
+                  }
+                )}
+              </Box>
+            </Box>
+          </Box>
+
+          {/* ===================================================
+              X AXIS TITLE
+          =================================================== */}
+          <Typography
+            sx={{
+              textAlign: "center",
+
+              mt: 0.5,
+
+              ml: {
+                xs: 7.5,
+                sm: 9,
+              },
+
+              fontFamily:
+                "Manrope, sans-serif",
+
+              fontSize: 9.5,
+
+              fontWeight: 700,
+
+              color: theme.text,
+
+              letterSpacing: 0.4,
+            }}
+          >
+            PERFORMANCE METRICS
+          </Typography>
+        </Box>
+      );
+    })()
+  ) : (
+    /* =========================================================
+       EMPTY GRAPH STATE
+    ========================================================= */
+    <Box
+      sx={{
+        minHeight: 150,
+
+        display: "flex",
+
+        alignItems: "center",
+
+        justifyContent: "center",
+
+        textAlign: "center",
+
+        px: 2,
+      }}
+    >
+      <Box>
+        <ShowChartIcon
+          sx={{
+            fontSize: 32,
+            color: "#B8C8DA",
+            mb: 0.8,
+          }}
+        />
+
+        <Typography
+          sx={{
+            fontFamily:
+              "Manrope, sans-serif",
+
+            fontSize: 12,
+
+            fontWeight: 600,
+
+            color: theme.muted,
+          }}
+        >
+          No graph data available
+        </Typography>
+
+        <Typography
+          sx={{
+            mt: 0.4,
+
+            fontFamily:
+              "Manrope, sans-serif",
+
+            fontSize: 10,
+
+            color: theme.muted,
+          }}
+        >
+          Please select scenarios and apply
+          filters to view graph information.
+        </Typography>
+      </Box>
+    </Box>
+  )}
+</Paper>
